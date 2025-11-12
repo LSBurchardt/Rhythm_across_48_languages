@@ -117,3 +117,65 @@ rhythm_results_doreco_ioi_meta <- rhythm_results_doreco_ioi_meta %>%
          -freq_reso, -signal_length, -elements, -raw_element_seq)
 
 saveRDS(rhythm_results_doreco_ioi_meta, file = "rhythm_results_doreco_ioi_meta_complete.rds")
+
+# 05: integer ratio ------
+
+## 05a: load integer ratios ----
+# very long computation, only run once, then output is saved 
+
+ioi_data_ir <- read_delim("rhythm_analysis_results/revision/iois_doreco_rerun_ir.csv", delim = ",")
+ioi_data_ir <- left_join(ioi_data_ir, language_file, by = "filename")
+ ioi_data_ir <- ioi_data_ir %>% 
+   filter(Language != "Sümi")
+## 05b: calculation ratios ------
+
+ # unique filename extraction
+ unique_files <- unique(ioi_data_ir$filename)
+
+ # folder for intermediate results
+ output_dir <- "rhythm_analysis_results/revision/intermediate_results"
+ dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+
+ # calculations per file
+
+ for (file in unique_files) {
+   output_file <- file.path(output_dir, paste0("results_", file, ".csv"))
+
+   # skip if output file already exists
+   if (file.exists(output_file)) {
+     next
+   }
+
+   # filter data
+   data <- ioi_data_ir %>% filter(filename == file) %>% select(ioi)
+
+   n <- nrow(data)
+
+   if (n < 2) {
+     next  # skip if not enough rows
+   }
+
+   # initialiese results table
+   results <- expand.grid(i = 1:n, j = 1:n) %>%
+     filter(i != j) %>%  # Entferne Fälle, wo i == j
+     mutate(ratio = data$ioi[i] / (data$ioi[i] + data$ioi[j]))
+
+   # save intermediate results per file
+   write_csv(results, output_file)
+ }
+
+ # combine all results
+ result_files <- list.files(output_dir, full.names = TRUE, pattern = "results_.*.csv")
+ all_results <- result_files %>%
+   map_dfr(~ read_csv(.x) %>% mutate(filename = basename(.x)))
+
+ write_csv(all_results, "doreco_interger_ratios_all_pairs_all_files.csv")
+
+all_results <- read_delim("doreco_interger_ratios_all_pairs_all_files.csv")
+language_file <- doreco_rhythm_results_complete %>%
+  select(Language, filename)
+
+all_results$filename <- str_sub(all_results$filename, end = -5, start = 9)
+
+all_results <- left_join(all_results, language_file, by = "filename")
+write_csv(all_results, "doreco_interger_ratios_all_pairs_all_files.csv")
