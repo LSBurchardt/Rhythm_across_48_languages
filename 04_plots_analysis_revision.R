@@ -23,7 +23,8 @@ if (!require(install.load)) {
 library(install.load)
 
 install_load("tidyverse", "psych", "tidygeocoder", "countrycode", "devtools",
-             "lme4", "maps", "effsize","praatpicture", "grid", "ggplotify", "magick", "scales")
+             "lme4", "maps", "effsize","praatpicture", "grid", "ggplotify",
+             "magick", "scales", "cowplot")
 
 ## 00b: prepare themes, color palettes, etc. ----
 
@@ -164,7 +165,8 @@ summary_by_speaker <- doreco_rhythm_results_complete %>%
 
 summary_by_language_iois <- ioi_data_meta %>% 
   group_by(Glottocode) %>% 
-  summarize(nr_io_units = length(Glottocode))
+  summarize(nr_io_units = length(Glottocode),
+            median_ioi_dur = median(ioi, na.rm = TRUE))
 
 
 ## 03b: correlation & effect size ----
@@ -862,7 +864,7 @@ hist_pauseduration <- ggplot(hist_data, aes(x = xmin, y = percentage)) +
     fill = "darkblue"
   ) +
   geom_vline(xintercept = 3.36, linetype="dotted", linewidth = 1, color = "darkred" )+
-  annotate("text", x = 5, y = 4, label = expression("Cutoff Criterion, 99th Quantile"), size = 4, color = "darkred")+
+  annotate("text", x = 5, y = 4, label = "Cutoff Criterion, 99th Quantile", size = 4, color = "darkred")+
   xlab("Pause Duration [sec]") +
   ylab("Percentage [%]") +
   coord_cartesian(ylim= c(0,10), xlim = c(0,7.5))+
