@@ -161,7 +161,8 @@ summary_by_speaker <- doreco_rhythm_results_complete %>%
   group_by(speaker) %>% 
   summarize(median_ioi_speaker = round(median(ioi_beat, na.rm = TRUE), digits = 2),
             filename_nr = length(unique(filename)),
-            file_nr = length(unique(file)))
+            file_nr = length(unique(file)),
+            age = median(speaker_age))
 
 summary_by_language_iois <- ioi_data_meta %>% 
   group_by(Glottocode) %>% 
@@ -209,7 +210,7 @@ cor_age <- corr.test(doreco_rhythm_results_complete$ioi_beat, doreco_rhythm_resu
 r_age <- cor_age$r
 R_squared_age <- r_age^2
 
-# ~ 0.002 % of variance are explained by age --> negligible
+# ~ 0.003 % of variance are explained by age --> negligible
 
 # correlation with morphological synthesis
 
@@ -217,7 +218,7 @@ cor_morph <- corr.test(doreco_rhythm_results_complete$ioi_beat, doreco_rhythm_re
 r_morph <- cor_morph$r
 R_squared_morph <- r_morph^2
 
-# 1.13% of variance explained, so even though statistically significant, very small effect size
+# 1.14% of variance explained, so even though statistically significant, very small effect size
 
 
 ##03b_2:raw ioi -----
@@ -379,11 +380,12 @@ boxplot_languages_ioi <- ioi_data_meta %>%
   group_by(Language) %>% 
   ggplot(aes(y = ioi, x = Language, fill = Family))+
   #geom_boxplot(outliers = FALSE)+
-  geom_boxplot()+
+  geom_boxplot(outlier.size = 0.5, outlier.alpha = 0.6)+
   #geom_jitter(alpha = 0.2, size = 0.5, shape = 01)+
+  geom_hline(yintercept = 2.015, linetype="dotted", linewidth = 0.7, color = "black")+  
   theme_minimal()+
   scale_fill_manual(values = colors)+
-  coord_cartesian(ylim = c(0,12.5))+
+  coord_cartesian(ylim = c(0,8))+
   theme(legend.position = "none",
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = -0.1),
         legend.title = element_blank(),
@@ -1165,18 +1167,18 @@ ggsave("sup_figure_ioibeats.jpg", dpi = 300,
        height = 26,
        units = "cm")
 
-## 07c: Figure 3 ----
+## 07c:old Figure 3 - now S5 ----
 
 # original submission ioi beat
-cowplot::plot_grid(scatter_age, scatter_morph,
-                   box_gender, box_tone, ncol = 2,
-                   labels = c("A", "B", "C", "D"))
+#cowplot::plot_grid(scatter_age, scatter_morph,
+#                   box_gender, box_tone, ncol = 2,
+#                   labels = c("A", "B", "C", "D"))
 
 
-ggsave("manuscript_figure3.jpg", dpi = 300,
-       width = 22,
-       height = 20,
-       units = "cm")
+#ggsave("manuscript_figure3.jpg", dpi = 300,
+#       width = 22,
+#       height = 20,
+#       units = "cm")
 
 # revision: raw ioi 
 
@@ -1184,7 +1186,7 @@ cowplot::plot_grid(scatter_age_ioi, scatter_morph_ioi,
                    box_gender_ioi, box_tone_ioi, ncol = 2,
                    labels = c("A", "B", "C", "D"))
 
-ggsave("manuscript_figure3_ioi.pdf", dpi = 300,
+ggsave("supplements_figure_5_ioi.jpg", dpi = 300,
        width = 22,
        height = 20,
        units = "cm")
