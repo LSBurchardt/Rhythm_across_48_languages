@@ -991,6 +991,19 @@ random_ir <- expand.grid(i = 1:1000, j = 1:1000) %>%
   filter(i != j) %>%  # Entferne Fälle, wo i == j
   mutate(ratio = sequence_random$sequence_random[i] / (sequence_random$sequence_random[i] + sequence_random$sequence_random[j]))
 
+# second version random seq
+
+sequence_random_2 <- rnorm(1000, mean = 2.02, sd = 1.22)
+# sd of ioi_data_meta$ioi, na.rm = TRUE
+sequence_random_2 <- as.data.frame(sequence_random_2)
+random_ir_2 <- expand.grid(i = 1:1000, j = 1:1000) %>%
+  filter(i != j) %>%  # Entferne Fälle, wo i == j
+  mutate(ratio = sequence_random_2$sequence_random_2[i] / (sequence_random_2$sequence_random_2[i] + sequence_random_2$sequence_random_2[j]))
+
+# compare random seq to asimjeeg datoga (language looking most similar to "random distribution")
+# and to cabecar (highest density peak)
+# calculate 
+## end second version random seq
 
 density_plot_ir_raw <- all_results %>% 
   ggplot(aes(x = ratio))+
@@ -998,7 +1011,7 @@ density_plot_ir_raw <- all_results %>%
   #geom_density()+
   #geom_vline(xintercept = 1/2.25, linetype="dotted", linewidth = 2 )+  
   #geom_vline(xintercept = 0.56, linetype="dotted", linewidth = 2)+
-  geom_density(data = random_ir, aes(x = ratio),linewidth = 1.3, color = "black")+
+  #geom_density(data = random_ir_2, aes(x = ratio),linewidth = 1.3, color = "black")+
   #coord_cartesian(xlim = c(0, 2))+
   theme_minimal()+
   theme(legend.position = "none")+
@@ -1036,7 +1049,7 @@ peaks_density_ir <- density_data_ir %>%
 density_plot_ioi_language_raw <- ioi_data_meta %>% 
   ggplot(aes(x = ioi))+
   geom_density(aes(color = Family))+
-  geom_density(data =sequence_random, aes(x = sequence_random), color = "black", size = 1.3)+
+  #geom_density(data =sequence_random_2, aes(x = sequence_random_2), color = "black", size = 1.3)+
   #coord_cartesian(xlim = c(0, 2))+
   scale_color_manual(values = colors)+
   theme_minimal()+
@@ -1089,11 +1102,16 @@ skylark_ioi <- skylark_ioi %>%
   filter(ioi <= ioi_cutoff_skylark)
 
 brown_meagre_ioi <- read_delim("iois_BM_all.csv", delim = ",")
+# some iois are 0.000 in a fashion that indicates values were doubled in calculation table
+# therefore values of 0.000 are filtered out
+brown_meagre_ioi <- brown_meagre_ioi %>% 
+  filter(`unlist(ioi_all)` > 0)
 
 #zebrafinch_ioi <- read_delim("Complete_ioi_Data_With_Meta_Information.csv", delim = ",")
 
 capefur_seal <- read_delim("cape_fur_seal_ioi.csv", delim = ";")
 
+frog_data <- read_delim("frog_results_appendix_2.csv", delim = ";")
 
 ##06b: rescale for comp -----
 
@@ -1104,22 +1122,26 @@ rescale_skylark <- rescale(skylark_ioi$ioi)
 rescale_BM <- rescale(brown_meagre_ioi$`unlist(ioi_all)`)
 #rescale_ZF <- rescale(zebrafinch_ioi$ioi)
 rescale_CFS <- rescale(capefur_seal$ioi)
+rescale_random <- rescale(sequence_random_2$sequence_random_2)
 
 ioi_comparison_rescaled <- bind_rows(
   data.frame(value = rescale_humam, source = "Human"),
   data.frame(value = rescale_skylark, source = "Skylark"),
   data.frame(value = rescale_BM, source = "Brown Meagre"),
   #data.frame(value = rescale_ZF, source = "Zebrafinch"),
-  data.frame(value = rescale_CFS, source = "Cape Fur Seal")
+  data.frame(value = rescale_CFS, source = "Cape Fur Seal"),
+  data.frame(value = rescale_random, source = "Human Random")
 )
 
 ## 06c: plot comp -----
 
-hist_ioi_rescaled_comparison <- ioi_comparison_rescaled %>%
+#ioi_comparison_rescaled$source <- factor(ioi_comparison_rescaled$source, levels = c("Brown Meagre", "Cape Fur Seal", "Human", "Skylark"))
+
+hist_ioi_rescaled_comparison_2 <- ioi_comparison_rescaled %>%
   #filter(source != "Skylark") %>% 
   ggplot(aes(x = value, fill = source)) +
   geom_density(alpha = 0.5) +
-  scale_fill_manual(values = species_comp_color)+
+  scale_fill_manual(values = species_comp_color_2)+
   theme_minimal() +
   labs(
     x = "Rescaled IOI",
@@ -1130,12 +1152,152 @@ hist_ioi_rescaled_comparison <- ioi_comparison_rescaled %>%
   my_custom_theme+
   theme(
     text = element_text(size = 14),
-    legend.position = "right"
+    legend.position = "none"
   )
 
-ggsave("ioi_comparison_animal_rescaled.jpg", dpi = 300,
-       width = 12,
-       height = 8)
+# run once, with legend.position in above plot "bottom" then comment out and change legend.position to "none"
+#legend_comp <- get_legend(hist_ioi_rescaled_comparison_2)
+
+legend_comp <- as.ggplot(legend_comp)
+
+#ggsave("ioi_comparison_animal_rescaled.jpg", dpi = 300,
+#       width = 12,
+#       height = 8)
+
+### comparison 2, beat precision ----
+
+# Beat Precision positions and species labels
+dots_bp <- data.frame(
+  x = c(0.37, 0.38, 0.32, 0.48, 0.48),
+  y = 0,
+  species = factor(c("Human", "Brown Meagre", "Skylark", "Cape Fur Seal", "Human Random"), levels = c("Brown Meagre", "Cape Fur Seal", "Human", "Skylark", "Human Random"))
+)
+
+
+# line definition 
+#line_bp <- data.frame(x = c(0, 0.5), y = 0)
+#dots_df$label_y <- dots_df$y + rep(c(0.02, -0.02), length.out = nrow(dots_df))
+#dots_df$vjust_pos <- rep(c(0, 1), length.out = nrow(dots_df))
+library("ggrepel")
+
+beat_precision_comp_2 <- ggplot() +
+  geom_segment(aes(x = 0, xend = 0.5, y = 0, yend = 0), linewidth = 1) +
+  geom_segment(aes(x = 0, xend = 0, y = -0.01, yend = 0.01), linewidth = 1) +
+  geom_segment(aes(x = 0.5, xend = 0.5, y = -0.01, yend = 0.01), linewidth = 1) +
+  geom_point(data = dots_bp, 
+             aes(x = x, y = y, colour = species),
+             size = 4) +
+  geom_text(aes(x = 0, y = -0.03, label = "0"), size = 4, vjust = 1) +
+  geom_text(aes(x = 0.5, y = -0.03, label = "0.5"), size = 4, vjust = 1) +
+  geom_text_repel(
+    data = dots_bp,
+    aes(x = x, y = y, label = x, colour = species),
+    nudge_y = 0.05,       # pushes labels slightly away from line
+    size = 5,
+    direction = "y",      # only move vertically (keeps x fixed)
+    force = 8,
+    min.segment.length = 0.05
+  )+
+  #geom_text(aes(x = 0.14, y = 0.1, label = "Average Beat Precision Across Species"), size = 4, vjust = 1) +
+  scale_color_manual(values = c( "#1f77b4","#aec7e8", "#2ca02c","#ff7f0e","#d62728" )) +
+  coord_fixed(ratio = 1/1.2) +
+  scale_y_continuous(limits = c(-0.05, 0.15))+
+  #theme_minimal(base_size = 14) +
+  xlab("Average Beat Precision Across Species")+
+  my_custom_theme+
+  theme(
+    axis.title.y = element_blank(),
+    axis.text.y = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.y = element_blank(),
+    panel.grid = element_blank(),
+    legend.position = "none",     # place legend below
+    legend.box = "horizontal"
+  ) +
+  scale_x_continuous(limits = c(-0.05, 0.55))
+
+# same figure for CV, but without end marker, because cv could be higher 
+dots_cv <- data.frame(
+  x = c(0.5, 0.18, 1.3, 0.23, 0.6),
+  y = 0,
+  species = factor(c("Human", "Brown Meagre", "Skylark", "Cape Fur Seal", "Human Random"), levels = c("Brown Meagre", "Cape Fur Seal", "Human", "Skylark", "Human Random"))
+)
+#line_cv <- data.frame(x = c(0, 1.5), y = 0)
+
+cv_comp_2 <- ggplot() +
+  geom_segment(aes(x = 0, xend = 1.5, y = 0, yend = 0), linewidth = 1) +
+  geom_segment(aes(x = 0, xend = 0, y = -0.01, yend = 0.01), linewidth = 1) +
+  #geom_segment(aes(x = 0.5, xend = 0.5, y = -0.01, yend = 0.01), linewidth = 1) +
+  geom_point(data = dots_cv, 
+             aes(x = x, y = y, colour = species),
+             size = 4) +
+  geom_text(aes(x = 0, y = -0.03, label = "0"), size = 4, vjust = 1) +
+  #geom_text(aes(x = 0.5, y = -0.03, label = "0.5"), size = 4, vjust = 1) +
+  geom_text_repel(
+    data = dots_cv,
+    aes(x = x, y = y, label = x, colour = species),
+    nudge_y = 0.05,       # pushes labels slightly away from line
+    size = 5,
+    direction = "y",      # only move vertically (keeps x fixed)
+    force = 5,
+    min.segment.length = 0.02
+  )+
+  #geom_text(aes(x = 0.14, y = 0.1, label = "Average Beat Precision Across Species"), size = 4, vjust = 1) +
+  scale_color_manual(values = c( "#1f77b4","#ff7f0e", "#2ca02c", "#aec7e8","#d62728" )) +
+  #coord_fixed(ratio = 1/1.2) +
+  scale_y_continuous(limits = c(-0.05, 0.15))+
+  #theme_minimal(base_size = 14) +
+  xlab("Average Coefficient of Variation Across Species")+
+  my_custom_theme+
+  theme(
+    axis.title.y = element_blank(),
+    axis.text.y = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.y = element_blank(),
+    panel.grid = element_blank(),
+    legend.position = "none",     
+    legend.box = "horizontal"
+  ) +
+  scale_x_continuous(limits = c(-0.05, 1.55))
+
+
+# plot grid, including legend
+part_1_comp <- cowplot::plot_grid(hist_ioi_rescaled_comparison_2,cv_comp_2, beat_precision_comp_2, nrow= 3, labels = c("A", "B", "C"), rel_heights = c(0.5, 0.2, 0.3))
+
+cowplot::plot_grid(part_1_comp, legend_comp, nrow = 2, align = "h", rel_heights = c(0.8, 0.2))
+
+ggsave("ioi_comparison_animal_rescaled_bp_cv_random.jpg", dpi = 300,
+       width = 10,
+       height = 9)
+
+## 06d: calculations ----
+
+bm_mean <- mean(brown_meagre_ioi$`unlist(ioi_all)`, na.rm = TRUE) 
+# 2.64 seconds
+median(brown_meagre_ioi$`unlist(ioi_all)`, na.rm = TRUE)
+# 2.48 seconds
+
+sd(brown_meagre_ioi$`unlist(ioi_all)`, na.rm = TRUE)/mean(brown_meagre_ioi$`unlist(ioi_all)`, na.rm = TRUE) 
+
+# frog cv
+
+ESF_data_frog <- frog_data %>% 
+  filter(species == "Eastern sedge frog") %>% 
+  
+WSF_data_frog <- frog_data %>% 
+  filter(species == "Wallum sedge frog")
+  
+mean_cv_wsf <- mean(WSF_data_frog$`Coefficient of variation`, na.rm = TRUE)
+median_cv_wsf <- median(WSF_data_frog$`Coefficient of variation`, na.rm = TRUE)
+
+mean_cv_esf <- mean(ESF_data_frog$`Coefficient of variation`, na.rm = TRUE)
+median_cv_esf <- median(ESF_data_frog$`Coefficient of variation`, na.rm = TRUE)
+
+
+#skylark mean ioi
+
+mean(skylark_ioi$`IOI[sec]`, na.rm = TRUE)
+sd(skylark_ioi$`IOI[sec]`, na.rm = TRUE)/mean(skylark_ioi$`IOI[sec]`, na.rm = TRUE)
 
 # 07: plot grids -----
 
