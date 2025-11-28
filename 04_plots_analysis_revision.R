@@ -554,8 +554,8 @@ box_gender <- doreco_rhythm_results_complete_summarized_file %>%
   xlab("Gender")+
   ylab("IOI Beat [Hz]")+
   my_custom_theme+
-  scale_x_discrete(labels = c("f" = "Female", "m" = "Male"))+
-  annotate("text", x = 1.5, y = 0.8, label = paste("Cohen's d = ", round(d_gender$estimate, 2)), size = 5)
+  scale_x_discrete(labels = c("f" = "Female", "m" = "Male"))#+
+  #annotate("text", x = 1.5, y = 0.8, label = paste("Cohen's d = ", round(d_gender$estimate, 2)), size = 5)
 
 doreco_rhythm_results_complete_summarized_file %>%
   drop_na(speaker_sex) %>%
@@ -595,8 +595,8 @@ box_gender_ioi <- ioi_data_meta_summarized_file %>%
   xlab("Gender")+
   ylab("IOI [sec]")+
   my_custom_theme+
-  scale_x_discrete(labels = c("f" = "Female", "m" = "Male"))+
-  annotate("text", x = 1.5, y = 5, label = paste("Cohen's d = ", round(d_gender_ioi$estimate, 2)), size = 5)
+  scale_x_discrete(labels = c("f" = "Female", "m" = "Male"))#+
+  #annotate("text", x = 1.5, y = 5, label = paste("Cohen's d = ", round(d_gender_ioi$estimate, 2)), size = 5)
 
 
 ## 04f age differences -----
@@ -634,19 +634,19 @@ scatter_age <- doreco_rhythm_results_complete_summarized_file %>%
 scatter_age_ioi <- ioi_data_meta_summarized_file %>% 
   ggplot(aes(x= speaker_age, y = median_ioi ))+
   geom_jitter(alpha = 0.3, size = 0.5)+
-  geom_smooth(method = "lm", color = "#0072B2")+
+  #geom_smooth(method = "lm", color = "#0072B2")+
   theme_minimal()+
   theme(legend.position = "none")+
   xlab('Speaker Age ')+
   ylab("IOI [sec]")+
-  my_custom_theme+
-  annotate("text", x = 80, y = 6, label = paste("R² =", round(R_squared_age_ioi, 3)), size = 5)
+  my_custom_theme#+
+  #annotate("text", x = 80, y = 6, label = paste("R² =", round(R_squared_age_ioi, 3)), size = 5)
 
 ## 04g: tone and morphological complexity ----
 
 box_tone <- doreco_rhythm_results_complete_summarized_file %>%
   filter(is.na(tone) == FALSE) %>%
-  group_by(speaker) %>% 
+  #group_by(speaker) %>% 
   ggplot(aes(x= tone, y = ioi_beat ))+
   geom_boxplot(outliers = FALSE)+
   geom_jitter(size= 0.5, alpha = 0.5)+
@@ -655,8 +655,8 @@ box_tone <- doreco_rhythm_results_complete_summarized_file %>%
   xlab(' Tone Language')+
   ylab("IOI beat [Hz]")+
   my_custom_theme+
-  scale_x_discrete(labels = c("no" = "No", "yes" = "Yes"))+
-  annotate("text", x = 1.5, y = 0.8, label = paste("Cohen's d = ", round(d_tone$estimate, 2)), size = 5)
+  scale_x_discrete(labels = c("no" = "No", "yes" = "Yes"))#+
+  #annotate("text", x = 1.5, y = 0.8, label = paste("Cohen's d = ", round(d_tone$estimate, 2)), size = 5)
 
 
 ###SF: Can you explain how morphological synsthesis is calculated. For each speaker here?
@@ -680,7 +680,7 @@ scatter_morph <- doreco_rhythm_results_complete_summarized_file %>%
 
 box_tone_ioi <- ioi_data_meta_summarized_file %>%
   filter(is.na(tone) == FALSE) %>%
-  group_by(speaker) %>% 
+  #group_by(speaker) %>% 
   ggplot(aes(x= tone, y = median_ioi ))+
   geom_boxplot(outliers = FALSE)+
   geom_jitter(size= 0.5, alpha = 0.3, shape = 01)+
@@ -689,8 +689,8 @@ box_tone_ioi <- ioi_data_meta_summarized_file %>%
   xlab(' Tone Language')+
   ylab("IOI [sec]")+
   my_custom_theme+
-  scale_x_discrete(labels = c("no" = "No", "yes" = "Yes"))+
-  annotate("text", x = 1.5, y = 5, label = paste("Cohen's d = ", round(d_tone_ioi$estimate, 2)), size = 5)
+  scale_x_discrete(labels = c("no" = "No", "yes" = "Yes"))#+
+  #annotate("text", x = 1.5, y = 5, label = paste("Cohen's d = ", round(d_tone_ioi$estimate, 2)), size = 5)
 
 # Synthesis
 
@@ -702,14 +702,14 @@ scatter_morph_ioi <- ioi_data_meta_summarized_file %>%
   # ) %>%
   ggplot(aes(x= synthesis, y = median_ioi))+
   geom_jitter(alpha = 0.3, size = 0.5)+
-  geom_smooth(method = "lm", color = "#0072B2")+
+  #geom_smooth(method = "lm", color = "#0072B2")+
   theme_minimal()+
   theme(legend.position = "none")+
   xlab('Morphological Synthesis')+
   ylab("IOI [sec]")+
-  my_custom_theme+
+  my_custom_theme#+
   #annotate("text", x = 3, y = 3.5, label = paste("R² =", round(R_squared_morph_ioi_speaker, 2)), size = 5)
-  annotate("text", x = 3, y = 6, label = paste("R² =", round(R_squared_morph_ioi, 2)), size = 5)
+  #annotate("text", x = 3, y = 6, label = paste("R² =", round(R_squared_morph_ioi, 2)), size = 5)
 
 
 # ioi_per_speaker <- ioi_data_meta_summarized_file %>%
@@ -1348,7 +1348,7 @@ cowplot::plot_grid(scatter_age_ioi, scatter_morph_ioi,
                    box_gender_ioi, box_tone_ioi, ncol = 2,
                    labels = c("A", "B", "C", "D"))
 
-ggsave("supplements_figure_5_ioi.jpg", dpi = 300,
+ggsave("supplements_figure_5_ioi_new.jpg", dpi = 300,
        width = 22,
        height = 20,
        units = "cm")
