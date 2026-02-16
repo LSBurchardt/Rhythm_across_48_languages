@@ -22,4 +22,12 @@ Includes different data files:
 Raw Input Data: DoReCo_2_0_IO_20240928.csv
 Complete Rhythm Results Data: rhythm_results_doreco_ioi_meta_complete.rds
 
+Intermediate data files used in the code 04: 
+unsplit_ioi_data_for_rhythm_analysis_including_meta_data_run_Oct24.csv
+iois_doreco_rerun_ir.csv
+doreco_languages_metadata_2_0.csv
+
+Additional data intermediate datafile to big for upload to GitHub: 
+doreco_interger_ratios_all_pairs_all_files.csv (contact corresponding authors for data, or run analysis yourself to generate data)
+
 
